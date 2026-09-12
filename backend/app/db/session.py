@@ -68,17 +68,26 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def init_db():
     if engine is None:
         await init_engine()
+    
+    # 1. Create all tables in their own isolated transaction
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Idempotent migrations for new columns
-        for col_stmt in [
-            "ALTER TABLE projects ADD COLUMN squad_id VARCHAR(100)",
-            "ALTER TABLE projects ADD COLUMN squad_name VARCHAR(200)",
-            "ALTER TABLE projects ADD COLUMN squad_member_ids TEXT",
-            "ALTER TABLE users ADD COLUMN github_id VARCHAR(50)",
-        ]:
-            try:
-                await conn.execute(text(col_stmt))
-            except Exception:
-                pass
+
+    # 2. Run idempotent migrations in separate transactions
+    for col_stmt in [
+        "ALTER TABLE projects ADD COLUMN squad_id VARCHAR(100)",
+        "ALTER TABLE projects ADD COLUMN squad_name VARCHAR(200)",
+        "ALTER TABLE projects ADD COLUMN squad_member_ids TEXT",
+        "ALTER TABLE users ADD COLUMN github_id VARCHAR(50)",
+    ]:
+        try:
+            async with engine.begin() as conn:
+                if is_postgres:
+                    pg_stmt = col_stmt.replace("ADD COLUMN", "ADD COLUMN IF NOT EXISTS")
+                    await conn.execute(text(pg_stmt))
+                else:
+                    await conn.execute(text(col_stmt))
+        except Exception:
+            pass
+
     logger.info("Database schema synchronized.")

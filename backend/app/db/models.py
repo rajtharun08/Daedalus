@@ -97,7 +97,7 @@ class User(Base):
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     timezone: Mapped[str] = mapped_column(String(50), default="UTC+00:00")
     active_branch: Mapped[str] = mapped_column(String(100), default="main")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     skills: Mapped[List["UserSkill"]] = relationship(back_populates="user", cascade="all, delete-orphan", lazy="selectin")
     assigned_tasks: Mapped[List["Task"]] = relationship(back_populates="assignee", lazy="selectin")
@@ -129,7 +129,7 @@ class Project(Base):
     squad_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     squad_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     squad_member_ids: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON-encoded list of user IDs
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     epics: Mapped[List["Epic"]] = relationship(back_populates="project", cascade="all, delete-orphan", lazy="selectin")
 
@@ -171,7 +171,7 @@ class Task(Base):
     pr_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     last_commit_hash: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     last_commit_message: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     epic: Mapped["Epic"] = relationship(back_populates="tasks")
     assignee: Mapped[Optional["User"]] = relationship(back_populates="assigned_tasks", lazy="selectin")
@@ -210,7 +210,7 @@ class WebhookDelivery(Base):
     delivery_guid: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     payload: Mapped[str] = mapped_column(Text)  # JSON-encoded payload
     processed: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------
@@ -232,5 +232,5 @@ class TeamInvitation(Base):
     invited_by_name: Mapped[str] = mapped_column(String(100))
     invited_by_handle: Mapped[str] = mapped_column(String(100))
     status: Mapped[str] = mapped_column(String(30), default="PENDING", index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
