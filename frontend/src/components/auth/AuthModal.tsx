@@ -72,13 +72,6 @@ export const AuthModal: React.FC<Props> = ({
     { id: 'DevOps', label: 'DevOps Engineer', icon: FolderGit2 },
   ];
 
-  // Quick Switch Teammate
-  const handleQuickSelect = (user: UserType) => {
-    localStorage.setItem('daedalus_user', JSON.stringify(user));
-    onLoginSuccess(user);
-    onClose();
-  };
-
   // Sign In submission
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,12 +151,8 @@ export const AuthModal: React.FC<Props> = ({
 
   // GitHub Direct Auth
   const handleGitHubAuth = () => {
-    if (availableUsers.length > 0) {
-      handleQuickSelect(availableUsers[0]);
-    } else {
-      setMode('signup');
-      setError('No developer profiles registered yet. Please create your profile to get started.');
-    }
+    setMode('signup');
+    setError(null);
   };
 
   if (!isOpen) return null;
@@ -276,47 +265,6 @@ export const AuthModal: React.FC<Props> = ({
           ) : mode === 'signin' ? (
             /* ==================== SIGN IN VIEW ==================== */
             <div className="space-y-6">
-              {/* Quick Squad Member Switcher */}
-              {availableUsers.length > 0 && (
-                <div className="space-y-3">
-                  <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold block">
-                    Quick Sign In
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {availableUsers.slice(0, 4).map((user) => (
-                      <button
-                        key={user.id}
-                        type="button"
-                        onClick={() => handleQuickSelect(user)}
-                        className="p-3.5 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-white/10 hover:border-cyan-500/50 flex items-center gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
-                      >
-                        <img
-                          src={user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.github_username}`}
-                          alt={user.full_name}
-                          className="w-11 h-11 rounded-xl bg-zinc-950 border border-white/15 group-hover:border-cyan-400/60 object-cover shrink-0"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-bold text-white group-hover:text-cyan-300 truncate font-sans">
-                            {user.full_name}
-                          </div>
-                          <div className="text-xs font-mono text-zinc-400 truncate">
-                            @{user.github_username}
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-cyan-400 transition-colors shrink-0" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Divider */}
-              <div className="flex items-center gap-4 py-1">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Or with email or handle</span>
-                <div className="flex-1 h-px bg-white/10" />
-              </div>
-
               {/* Sign In Form */}
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
