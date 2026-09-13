@@ -19,7 +19,7 @@ router = APIRouter()
 
 class SkillScanRequest(BaseModel):
     github_or_resume: str = Field(..., description="GitHub profile username, URL, or raw resume text")
-    full_name: Optional[str] = "Alex Chen"
+    full_name: Optional[str] = None
     email: Optional[str] = None
     avatar_url: Optional[str] = None
 
@@ -292,7 +292,7 @@ async def scan_and_ingest_skills(
                 user_info = user_resp.json()
                 if user_info.get("id"):
                     verified_github_id = str(user_info["id"])
-                if user_info.get("name") and (not req.full_name or req.full_name == "Alex Chen"):
+                if user_info.get("name") and not req.full_name:
                     full_name = user_info["name"]
                 if user_info.get("avatar_url") and not req.avatar_url:
                     req.avatar_url = user_info["avatar_url"]
@@ -379,12 +379,7 @@ async def scan_and_ingest_skills(
                     extracted_skills.append({"text": skill_name, "category": category, "proficiency": prof})
 
         if not extracted_skills:
-            extracted_skills = [
-                {"text": "FastAPI & Python AsyncIO", "category": "Backend", "proficiency": 0.92},
-                {"text": "React 18 & TypeScript", "category": "Frontend", "proficiency": 0.88},
-                {"text": "PostgreSQL & Database Architecture", "category": "Database", "proficiency": 0.85},
-                {"text": "Docker & GitHub Actions CI", "category": "DevOps", "proficiency": 0.82}
-            ]
+            extracted_skills = []
 
     await ws_manager.broadcast("TERMINAL_SCAN_PROGRESS", {
         "log": f"> Ingestion complete! Synthesized {len(extracted_skills)} neural competencies.",
@@ -565,8 +560,8 @@ class TeamInvitationCreate(BaseModel):
     role: str = "FULL-STACK INTEGRATOR"
     pitch_note: Optional[str] = "We'd love to have you on our hackathon squad!"
     projected_synergy: Optional[int] = 15
-    invited_by_name: Optional[str] = "Alex Chen"
-    invited_by_handle: Optional[str] = "alexc-dev"
+    invited_by_name: Optional[str] = None
+    invited_by_handle: Optional[str] = None
 
 
 class TeamInvitationResponse(BaseModel):
@@ -588,42 +583,6 @@ class TeamInvitationResponse(BaseModel):
 
 class TeamInvitationAction(BaseModel):
     action: str  # "accept", "decline", "cancel"
-
-
-SEED_TEAM_INVITATIONS = [
-    {
-        "id": "inv_crdt_01",
-        "team_id": "squad_crdt",
-        "squad_name": "Distributed CRDT Whiteboard",
-        "target_username": "alexc-dev",
-        "target_user_id": "user_1",
-        "target_user_name": "Alex Chen",
-        "target_avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=alexc-dev",
-        "role": "CORE ARCHITECT (LEAD)",
-        "pitch_note": "We saw your vector decomposition algorithm and want you to lead our real-time DAG architecture for the sprint.",
-        "projected_synergy": 22,
-        "invited_by_name": "Sarah Connor",
-        "invited_by_handle": "sconnor-dev",
-        "status": "PENDING",
-        "created_at": "5m ago"
-    },
-    {
-        "id": "inv_arbiter_02",
-        "team_id": "squad_arbiter",
-        "squad_name": "Autonomous Flash Arbiter",
-        "target_username": "alexc-dev",
-        "target_user_id": "user_1",
-        "target_user_name": "Alex Chen",
-        "target_avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=alexc-dev",
-        "role": "AI & VECTOR SPECIALIST",
-        "pitch_note": "Our DeFi settlement pipeline needs ultra-fast embedding similarity. We'd love you to join as our AI Specialist!",
-        "projected_synergy": 18,
-        "invited_by_name": "Marcus Vance",
-        "invited_by_handle": "mvance-quant",
-        "status": "PENDING",
-        "created_at": "12m ago"
-    }
-]
 
 
 @router.post("/team/invitations", response_model=dict)
@@ -649,8 +608,8 @@ async def create_team_invitation(
         role=req.role,
         pitch_note=req.pitch_note or f"We invite @{target_user} to join our squad as {req.role}.",
         projected_synergy=req.projected_synergy or 15,
-        invited_by_name=req.invited_by_name or "Alex Chen",
-        invited_by_handle=req.invited_by_handle or "alexc-dev",
+        invited_by_name=req.invited_by_name or "Squad Lead",
+        invited_by_handle=req.invited_by_handle or "squad-lead",
         status="PENDING"
     )
     db.add(invite_obj)
@@ -692,29 +651,8 @@ async def list_team_invitations(
 ):
     """
     Lists squad invitations, filterable by target developer username, team ID, or status.
-    Backed by persistent database storage with automatic initial seeding.
+    Backed by persistent database storage.
     """
-    # Seed initial demo invitations if table is empty
-    count_res = await db.execute(select(func.count(TeamInvitation.id)))
-    if (count_res.scalar() or 0) == 0:
-        for seed in SEED_TEAM_INVITATIONS:
-            db.add(TeamInvitation(
-                id=seed["id"],
-                team_id=seed["team_id"],
-                squad_name=seed["squad_name"],
-                target_username=seed["target_username"],
-                target_user_id=seed["target_user_id"],
-                target_user_name=seed["target_user_name"],
-                target_avatar_url=seed["target_avatar_url"],
-                role=seed["role"],
-                pitch_note=seed["pitch_note"],
-                projected_synergy=seed["projected_synergy"],
-                invited_by_name=seed["invited_by_name"],
-                invited_by_handle=seed["invited_by_handle"],
-                status=seed["status"]
-            ))
-        await db.commit()
-
     stmt = select(TeamInvitation)
     if target_username:
         clean_target = target_username.strip().replace("@", "").lower()

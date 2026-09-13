@@ -158,20 +158,12 @@ export const AuthModal: React.FC<Props> = ({
 
   // GitHub Direct Auth
   const handleGitHubAuth = () => {
-    const defaultUser = availableUsers[0] || {
-      id: 'usr_github_auth',
-      full_name: 'Alex Chen',
-      github_username: 'alexc-dev',
-      email: 'alex@daedalus.hack',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Apollo',
-      timezone: 'UTC-04:00 (EDT)',
-      active_branch: 'feat/CORE-01-db',
-      skills: [
-        { id: '1', skill_name: 'FastAPI Microservices', category: 'Backend', proficiency: 0.95 },
-        { id: '2', skill_name: 'Vector Search Systems', category: 'AI', proficiency: 0.90 },
-      ],
-    };
-    handleQuickSelect(defaultUser);
+    if (availableUsers.length > 0) {
+      handleQuickSelect(availableUsers[0]);
+    } else {
+      setMode('signup');
+      setError('No developer profiles registered yet. Please create your profile to get started.');
+    }
   };
 
   if (!isOpen) return null;
@@ -285,36 +277,38 @@ export const AuthModal: React.FC<Props> = ({
             /* ==================== SIGN IN VIEW ==================== */
             <div className="space-y-6">
               {/* Quick Squad Member Switcher */}
-              <div className="space-y-3">
-                <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold block">
-                  Quick Sign In
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {availableUsers.slice(0, 4).map((user) => (
-                    <button
-                      key={user.id}
-                      type="button"
-                      onClick={() => handleQuickSelect(user)}
-                      className="p-3.5 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-white/10 hover:border-cyan-500/50 flex items-center gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
-                    >
-                      <img
-                        src={user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.github_username}`}
-                        alt={user.full_name}
-                        className="w-11 h-11 rounded-xl bg-zinc-950 border border-white/15 group-hover:border-cyan-400/60 object-cover shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-bold text-white group-hover:text-cyan-300 truncate font-sans">
-                          {user.full_name}
+              {availableUsers.length > 0 && (
+                <div className="space-y-3">
+                  <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-semibold block">
+                    Quick Sign In
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {availableUsers.slice(0, 4).map((user) => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => handleQuickSelect(user)}
+                        className="p-3.5 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/90 border border-white/10 hover:border-cyan-500/50 flex items-center gap-3.5 transition-all text-left group cursor-pointer shadow-sm"
+                      >
+                        <img
+                          src={user.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.github_username}`}
+                          alt={user.full_name}
+                          className="w-11 h-11 rounded-xl bg-zinc-950 border border-white/15 group-hover:border-cyan-400/60 object-cover shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-bold text-white group-hover:text-cyan-300 truncate font-sans">
+                            {user.full_name}
+                          </div>
+                          <div className="text-xs font-mono text-zinc-400 truncate">
+                            @{user.github_username}
+                          </div>
                         </div>
-                        <div className="text-xs font-mono text-zinc-400 truncate">
-                          @{user.github_username}
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-cyan-400 transition-colors shrink-0" />
-                    </button>
-                  ))}
+                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-cyan-400 transition-colors shrink-0" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Divider */}
               <div className="flex items-center gap-4 py-1">
@@ -336,7 +330,7 @@ export const AuthModal: React.FC<Props> = ({
                       type="text"
                       value={signInIdentifier}
                       onChange={(e) => setSignInIdentifier(e.target.value)}
-                      placeholder="alexc-dev or alex@daedalus.hack"
+                      placeholder="your-handle or developer@example.com"
                       className="w-full pl-9 pr-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-sm font-mono text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
                       autoFocus
                     />
@@ -456,7 +450,7 @@ export const AuthModal: React.FC<Props> = ({
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Alex Chen"
+                        placeholder="e.g. Ada Lovelace"
                         required
                         className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-sm font-sans text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
                       />
@@ -473,7 +467,7 @@ export const AuthModal: React.FC<Props> = ({
                           type="text"
                           value={githubUsername}
                           onChange={(e) => setGithubUsername(e.target.value.replace(/^@/, ''))}
-                          placeholder="alexc-dev"
+                          placeholder="e.g. torvalds"
                           required
                           className="w-full pl-9 pr-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-sm font-mono text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-colors"
                         />

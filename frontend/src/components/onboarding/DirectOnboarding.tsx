@@ -57,36 +57,9 @@ export const DirectOnboarding: React.FC<Props> = ({ onLoginSuccess }) => {
         navigate('/team');
       }, 1000);
     } catch (err: any) {
-      // Graceful fallback for offline
-      const mockUser = {
-        id: 'user_' + Date.now(),
-        full_name: nameToUse,
-        github_username: githubToUse,
-        email: `${githubToUse.toLowerCase()}@daedalus.hack`,
-        avatar_url: selectedAvatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${githubToUse}`,
-        timezone: 'UTC-04:00 (EDT)',
-        active_branch: `feat/${githubToUse}-setup`,
-        skills: selectedSkills.map((s, idx) => ({
-          id: String(idx + 1),
-          skill_name: s,
-          category: roleToUse,
-          proficiency: 0.92,
-        })),
-      };
-      setTimeout(() => {
-        setIsScanning(false);
-        onLoginSuccess(mockUser);
-        navigate('/team');
-      }, 800);
+      setIsScanning(false);
+      setError(err?.response?.data?.detail || err.message || 'Failed to scan skills and connect developer profile. Please verify your handle or backend connection.');
     }
-  };
-
-  const handleQuickDemo = () => {
-    setName('Alex Chen');
-    setGithubUsername('alexc-dev');
-    setRole('Backend');
-    setSelectedSkills(['FastAPI', 'PostgreSQL', 'Docker', 'Redis']);
-    handleStartOnboarding('Alex Chen', 'alexc-dev', 'Backend');
   };
 
   return (
@@ -167,7 +140,7 @@ export const DirectOnboarding: React.FC<Props> = ({ onLoginSuccess }) => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Alex Chen"
+                    placeholder="e.g. Ada Lovelace"
                     className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 text-sm font-semibold text-white focus:border-cyan-400 focus:ring-0 outline-none transition-colors"
                   />
                 </div>
@@ -183,7 +156,7 @@ export const DirectOnboarding: React.FC<Props> = ({ onLoginSuccess }) => {
                       required
                       value={githubUsername}
                       onChange={(e) => setGithubUsername(e.target.value.replace('@', ''))}
-                      placeholder="alexc-dev"
+                      placeholder="e.g. torvalds"
                       className="w-full pl-8 p-3 rounded-xl bg-zinc-900 border border-white/10 text-sm font-mono text-zinc-200 focus:border-cyan-400 focus:ring-0 outline-none transition-colors"
                     />
                   </div>
@@ -273,19 +246,6 @@ export const DirectOnboarding: React.FC<Props> = ({ onLoginSuccess }) => {
                 >
                   <span>CONNECT PROFILE & JOIN SQUAD</span>
                   <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Instant Demo Shortcut */}
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono text-zinc-400">
-                <span>Want to test quickly?</span>
-                <button
-                  type="button"
-                  onClick={handleQuickDemo}
-                  className="text-zinc-200 hover:text-white underline underline-offset-4 cursor-pointer font-semibold flex items-center gap-1"
-                >
-                  <Zap className="w-3 h-3 text-amber-400" />
-                  1-Click Demo Profile
                 </button>
               </div>
             </motion.form>

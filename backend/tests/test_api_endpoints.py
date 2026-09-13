@@ -27,14 +27,24 @@ def test_health_endpoint(client):
 
 
 def test_list_users(client):
+    client.post(
+        "/api/v1/users/signup",
+        json={
+            "github_username": "test-user-list",
+            "full_name": "Test User List",
+            "email": "list@daedalus.hack",
+            "role": "FULLSTACK"
+        }
+    )
     response = client.get("/api/v1/users")
     assert response.status_code == 200
     users = response.json()
     assert isinstance(users, list)
-    assert len(users) >= 4  # Seeded users exist
-    assert "github_username" in users[0]
-    assert "github_id" in users[0]
-    assert "skills" in users[0]
+    assert len(users) >= 1
+    first_user = next((u for u in users if u["github_username"] == "test-user-list"), users[0])
+    assert "github_username" in first_user
+    assert "github_id" in first_user
+    assert "skills" in first_user
 
 
 def test_skill_scanning_ingestion(client):
@@ -140,6 +150,12 @@ def test_team_matching_and_profile(client):
 
     # Test user profile
     users = client.get("/api/v1/users").json()
+    if not users:
+        client.post(
+            "/api/v1/users/signup",
+            json={"github_username": "profile-test-user", "full_name": "Profile Test User"}
+        )
+        users = client.get("/api/v1/users").json()
     user_id = users[0]["id"]
     prof_resp = client.get(f"/api/v1/users/{user_id}")
     assert prof_resp.status_code == 200
@@ -195,12 +211,12 @@ def test_task_splitting_and_dag_mutation(client):
 
 
 def test_team_invitations_workflow(client):
-    # 1. Fetch initial invitations (seeded)
+    # 1. Fetch initial invitations
     list_resp = client.get("/api/v1/users/team/invitations")
     assert list_resp.status_code == 200
     data = list_resp.json()
-    assert data["count"] >= 2
-    assert any(inv["target_username"] == "alexc-dev" for inv in data["invitations"])
+    assert "count" in data
+    assert "invitations" in data
 
     # 2. Create an invitation to a developer
     create_resp = client.post(
@@ -212,8 +228,8 @@ def test_team_invitations_workflow(client):
             "role": "DEVOPS SENTINEL",
             "pitch_note": "Join our team to deploy zero-knowledge proof circuits!",
             "projected_synergy": 20,
-            "invited_by_name": "Alex Chen",
-            "invited_by_handle": "alexc-dev"
+            "invited_by_name": "Test Inviter",
+            "invited_by_handle": "test-inviter"
         }
     )
     assert create_resp.status_code == 200
@@ -250,6 +266,10 @@ def test_squad_restricted_decomposition(client):
     users_resp = client.get("/api/v1/users")
     assert users_resp.status_code == 200
     users = users_resp.json()
+    if len(users) < 2:
+        u1 = client.post("/api/v1/users/signup", json={"github_username": "squad-dev-1", "full_name": "Squad Dev 1"}).json()["user"]
+        u2 = client.post("/api/v1/users/signup", json={"github_username": "squad-dev-2", "full_name": "Squad Dev 2"}).json()["user"]
+        users = [u1, u2]
     assert len(users) >= 2
 
     # Form a 2-member squad
@@ -355,15 +375,24 @@ def test_webhook_hmac_verification(client):
 
 
 def test_user_auth_login_workflow(client):
-    # 1. Login with seeded valid user
+    # 1. Register test developer first
+    client.post(
+        "/api/v1/users/signup",
+        json={
+            "github_username": "login-test-user",
+            "full_name": "Login Test User",
+            "email": "logintest@daedalus.hack",
+            "role": "FULLSTACK"
+        }
+    )
     login_resp = client.post(
         "/api/v1/users/login",
-        json={"identifier": "alexc-dev"}
+        json={"identifier": "login-test-user"}
     )
     assert login_resp.status_code == 200
     data = login_resp.json()
     assert data["status"] == "success"
-    assert data["user"]["github_username"] == "alexc-dev"
+    assert data["user"]["github_username"] == "login-test-user"
     assert "skills" in data["user"]
     assert "github_id" in data["user"]
 

@@ -126,109 +126,6 @@ export interface Squad {
   defaultSynergy: number;
 }
 
-const SEED_JOIN_REQUESTS: JoinRequest[] = [
-  {
-    id: 'req_devon',
-    applicant: {
-      id: 'user_devon',
-      full_name: 'Devon Vance',
-      github_username: 'devon-ops',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=devon-ops',
-      timezone: 'UTC-04:00 (EDT)',
-      active_branch: 'feat/k8s-manifests',
-      role: 'DevOps & Infrastructure Lead',
-      skills: ['Docker & Compose', 'GitHub Actions CI', 'Kubernetes', 'AWS Lambda'],
-    },
-    applied_at: '3m ago',
-    note: 'Noticed your squad has strong Backend & AI but needs a dedicated DevOps engineer. I can handle CI/CD, Dockerization, and cloud deployment.',
-    added_synergy: 18,
-    projected_team_synergy: 96,
-    impact_summary: 'Fills DevOps stack gap (45% -> 92%)',
-    stats: {
-      commit_velocity: 'Active Contributor',
-      top_language: 'HCL / Docker / Python',
-      experience_level: 'Infrastructure & CI',
-    },
-  },
-  {
-    id: 'req_elena',
-    applicant: {
-      id: 'user_elena',
-      full_name: 'Elena Rostova',
-      github_username: 'elena-ai',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=elena-ai',
-      timezone: 'UTC+01:00 (CET)',
-      active_branch: 'feat/vector-search',
-      role: 'AI & Data Specialist',
-      skills: ['RAG Architectures', 'PyTorch & Embeddings', 'Vector Search', 'FastAPI'],
-    },
-    applied_at: '11m ago',
-    note: 'Looking for a squad building AI/LLM apps! I have experience writing custom embedding pipelines and real-time semantic retrieval.',
-    added_synergy: 12,
-    projected_team_synergy: 92,
-    impact_summary: 'Strengthens AI & Database (75% -> 94%)',
-    stats: {
-      commit_velocity: 'Core Contributor',
-      top_language: 'Python / CUDA',
-      experience_level: 'ML & Data Systems',
-    },
-  },
-];
-
-const DEFAULT_SQUADS: Squad[] = [
-  {
-    id: 'squad-crdt',
-    name: 'Autonomous CRDT Whiteboard Squad',
-    track: 'Full-Stack & Realtime Systems',
-    mission: 'Building a sub-10ms conflict-free collaborative whiteboard with CRDT sync, WebSockets, and Redis pub/sub.',
-    maxTeamSize: 4,
-    tags: ['CRDT', 'React', 'FastAPI', 'WebSockets'],
-    leader: {
-      name: 'Alex Rivera',
-      handle: 'alex-rivera',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=alex-rivera',
-    },
-    initialMemberIds: ['user_1', 'user_2'],
-    joinRequests: SEED_JOIN_REQUESTS,
-    defaultCoverage: { Frontend: 0.85, Backend: 0.9, Database: 0.8, DevOps: 0.45, AI: 0.75 },
-    defaultSynergy: 85,
-  },
-  {
-    id: 'squad-defi',
-    name: 'Flash-Loan Arbitrage Core',
-    track: 'Web3 & Algorithmic Finance',
-    mission: 'Sub-second DEX liquidity pool scanner executing atomic flash loans via Uniswap V3 and Sushiswap.',
-    maxTeamSize: 3,
-    tags: ['Solidity', 'FastAPI', 'Web3.py', 'RPC'],
-    leader: {
-      name: 'Marcus Vance',
-      handle: 'marcus-vance',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=marcus-vance',
-    },
-    initialMemberIds: ['user_3', 'user_4'],
-    joinRequests: [],
-    defaultCoverage: { Frontend: 0.65, Backend: 0.95, Database: 0.85, DevOps: 0.8, AI: 0.9 },
-    defaultSynergy: 91,
-  },
-  {
-    id: 'squad-medrag',
-    name: 'Clinical Trials RAG Pipeline',
-    track: 'AI & Healthcare Intelligence',
-    mission: 'HIPAA-compliant medical document retrieval engine with 384-D vector embeddings and audit citations.',
-    maxTeamSize: 4,
-    tags: ['Vector Search', 'FastAPI', 'PyTorch', 'PostgreSQL'],
-    leader: {
-      name: 'Elena Rostova',
-      handle: 'elena-ai',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=elena-ai',
-    },
-    initialMemberIds: ['user_1', 'user_4'],
-    joinRequests: [],
-    defaultCoverage: { Frontend: 0.7, Backend: 0.9, Database: 0.95, DevOps: 0.5, AI: 0.95 },
-    defaultSynergy: 88,
-  },
-];
-
 export const TeamRoster: React.FC<Props> = ({
   currentUser,
   onNavigateToWorkspace,
@@ -246,12 +143,7 @@ export const TeamRoster: React.FC<Props> = ({
         console.error(e);
       }
     }
-    return {
-      id: 'user_1',
-      full_name: 'Alex Chen',
-      github_username: 'alexc-dev',
-      avatar_url: 'https://api.dicebear.com/7.x/bottts/svg?seed=alexc-dev',
-    };
+    return null;
   }, [currentUser]);
   const handleLaunchSprintWithSquad = (targetSquad: Squad, customTeamIds?: string[]) => {
     const memberIds = customTeamIds && customTeamIds.length > 0
@@ -285,7 +177,7 @@ export const TeamRoster: React.FC<Props> = ({
         console.error(e);
       }
     }
-    return DEFAULT_SQUADS;
+    return [];
   });
 
   const [selectedSquadId, setSelectedSquadId] = useState<string | null>(null);
@@ -295,7 +187,7 @@ export const TeamRoster: React.FC<Props> = ({
   // Active Squad Deck state
   const activeSquad = useMemo(() => {
     if (!selectedSquadId) return null;
-    return squads.find((s) => s.id === selectedSquadId) || squads[0];
+    return squads.find((s) => s.id === selectedSquadId) || null;
   }, [selectedSquadId, squads]);
 
   const [matchData, setMatchData] = useState<any>(null);
@@ -305,7 +197,7 @@ export const TeamRoster: React.FC<Props> = ({
   const [copiedRoster, setCopiedRoster] = useState(false);
 
   // Active Squad configuration state
-  const [teamName, setTeamName] = useState('Autonomous CRDT Whiteboard Squad');
+  const [teamName, setTeamName] = useState('My Hackathon Squad');
   const [maxTeamSize, setMaxTeamSize] = useState<number>(4);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -361,9 +253,14 @@ export const TeamRoster: React.FC<Props> = ({
   // Refresh invitations from backend API
   const refreshInvitations = async () => {
     try {
-      const inboundRes = await fetchTeamInvitations({ target_username: 'alexc-dev' });
-      if (inboundRes && inboundRes.invitations) {
-        setReceivedInvitations(inboundRes.invitations);
+      const activeHandle = currentUser?.github_username || creatorUser?.github_username;
+      if (activeHandle) {
+        const inboundRes = await fetchTeamInvitations({ target_username: activeHandle });
+        if (inboundRes && inboundRes.invitations) {
+          setReceivedInvitations(inboundRes.invitations);
+        }
+      } else {
+        setReceivedInvitations([]);
       }
       const outboundRes = await fetchTeamInvitations();
       if (outboundRes && outboundRes.invitations) {
@@ -422,8 +319,8 @@ export const TeamRoster: React.FC<Props> = ({
         role: inviteRole,
         pitch_note: invitePitchNote,
         projected_synergy: inviteTargetUser.added_synergy || 18,
-        invited_by_name: 'Alex Chen',
-        invited_by_handle: 'alexc-dev',
+        invited_by_name: creatorUser?.full_name || currentUser?.full_name || 'Team Leader',
+        invited_by_handle: creatorUser?.github_username || currentUser?.github_username || 'leader',
       };
       const res = await sendTeamInvitation(payload);
       if (res && res.invitation) {
@@ -603,10 +500,10 @@ export const TeamRoster: React.FC<Props> = ({
       ? squadTagList
       : newSquadTags.split(',').map((t) => t.trim()).filter(Boolean);
 
-    const creatorName = creatorUser.full_name || 'Alex Chen';
-    const creatorHandle = creatorUser.github_username || 'alexc-dev';
-    const creatorAvatar = creatorUser.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${creatorHandle}`;
-    const creatorId = creatorUser.id || 'user_1';
+    const creatorName = creatorUser?.full_name || currentUser?.full_name || 'Team Leader';
+    const creatorHandle = creatorUser?.github_username || currentUser?.github_username || 'leader';
+    const creatorAvatar = creatorUser?.avatar_url || currentUser?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${creatorHandle}`;
+    const creatorId = creatorUser?.id || currentUser?.id || `usr_${Date.now()}`;
 
     const newSquad: Squad = {
       id: 'squad_' + Date.now(),
@@ -890,7 +787,7 @@ export const TeamRoster: React.FC<Props> = ({
                 </h2>
               </div>
               <span className="text-xs font-mono text-slate-400">
-                Logged in as <span className="text-cyan-400 font-semibold">@alexc-dev</span>
+                Logged in as <span className="text-cyan-400 font-semibold">@{creatorUser?.github_username || currentUser?.github_username || 'guest'}</span>
               </span>
             </div>
 
@@ -1015,113 +912,132 @@ export const TeamRoster: React.FC<Props> = ({
             </div>
 
             {/* Squad Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredSquads.map((squad) => {
-            const filledCount = squad.initialMemberIds.length;
-            const isFullSquad = filledCount >= squad.maxTeamSize;
+            {filteredSquads.length === 0 ? (
+              <div className="p-12 rounded-3xl bg-space-950 border border-white/5 text-center space-y-3">
+                <Users className="w-8 h-8 text-slate-500 mx-auto" />
+                <div className="text-sm font-sans font-bold text-white">No Squads Formed Yet</div>
+                <p className="text-xs font-mono text-slate-400 max-w-md mx-auto">
+                  Click &quot;Create Squad&quot; above to launch a new hackathon squad and start recruiting teammates.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredSquads.map((squad) => {
+                  const filledCount = squad.initialMemberIds.length;
+                  const isFullSquad = filledCount >= squad.maxTeamSize;
 
-            return (
-              <GlassCard
-                key={squad.id}
-                className="p-6 border border-white/10 hover:border-cyan-500/40 flex flex-col justify-between space-y-5 transition-all group"
-              >
-                <div className="space-y-3.5">
-                  {/* Top Badges */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-md bg-white/5 text-purple-300 border border-white/10 font-semibold">
-                        {squad.track}
-                      </span>
-                      {globalActiveSquad?.id === squad.id && (
-                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1">
-                          <Sparkles className="w-2.5 h-2.5" />
-                          ACTIVE SQUAD
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[11px] font-mono text-slate-400 font-bold">
-                      {filledCount} / {squad.maxTeamSize} {squad.maxTeamSize === 1 ? 'Member' : 'Members'}
-                    </span>
-                  </div>
-
-                  {/* Squad Name */}
-                  <h3 className="text-lg font-bold font-sans text-white group-hover:text-cyan-300 transition-colors">
-                    {squad.name}
-                  </h3>
-
-                  {/* Mission */}
-                  <p className="text-xs font-sans text-slate-400 line-clamp-2 leading-relaxed">
-                    {squad.mission}
-                  </p>
-
-                  {/* Leader Info */}
-                  <div className="flex items-center gap-2.5 pt-1">
-                    <div className="relative">
-                      <img
-                        src={squad.leader.avatar_url}
-                        alt={squad.leader.name}
-                        className="w-7 h-7 rounded-lg border border-white/10 object-cover"
-                      />
-                    </div>
-                    <div className="text-[11px] font-mono leading-tight">
-                      <span className="text-white block font-semibold">{squad.leader.name}</span>
-                      <span className={squad.leader.handle === creatorUser.github_username || squad.leader.name.includes('(You)') ? 'text-amber-400 font-semibold' : 'text-slate-500'}>
-                        {squad.leader.handle === creatorUser.github_username || squad.leader.name.includes('(You)') ? 'Lead (You)' : 'Leader'} • @{squad.leader.handle}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {squad.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-space-950 border border-white/5 text-slate-400"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Card Footer Actions */}
-                <div className="pt-4 border-t border-white/5 flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => setSelectedSquadId(squad.id)}
-                      className="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono font-bold text-white hover:text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  return (
+                    <GlassCard
+                      key={squad.id}
+                      className="p-6 border border-white/10 hover:border-cyan-500/40 flex flex-col justify-between space-y-5 transition-all group"
                     >
-                      <span>Open Squad Deck</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
+                      <div className="space-y-3.5">
+                        {/* Top Badges */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-md bg-white/5 text-purple-300 border border-white/10 font-semibold">
+                              {squad.track}
+                            </span>
+                            {globalActiveSquad?.id === squad.id && (
+                              <span className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1">
+                                <Sparkles className="w-2.5 h-2.5" />
+                                ACTIVE SQUAD
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] font-mono text-slate-400 font-bold">
+                            {filledCount} / {squad.maxTeamSize} {squad.maxTeamSize === 1 ? 'Member' : 'Members'}
+                          </span>
+                        </div>
 
-                    <button
-                      onClick={() => {
-                        setApplySquadTarget(squad);
-                        setIsApplyModalOpen(true);
-                      }}
-                      disabled={isFullSquad}
-                      className="py-2 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
-                    >
-                      {isFullSquad ? 'Full' : 'Join'}
-                    </button>
-                  </div>
+                        {/* Squad Name */}
+                        <h3 className="text-lg font-bold font-sans text-white group-hover:text-cyan-300 transition-colors">
+                          {squad.name}
+                        </h3>
 
-                  {/* Direct 1-Click Open Squad Workspace */}
-                  <button
-                    onClick={() => handleLaunchSprintWithSquad(squad)}
-                    className="w-full py-2 px-3 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-sans text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                    title={`Open ${squad.name} Workspace`}
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-zinc-950" />
-                    <span className="truncate">Open {squad.name} Workspace &rarr;</span>
-                  </button>
-                </div>
-              </GlassCard>
-            );
-          })}
-        </div>
-        </>
+                        {/* Mission */}
+                        <p className="text-xs text-slate-400 font-sans line-clamp-2 leading-relaxed">
+                          {squad.mission}
+                        </p>
+
+                        {/* Tech Stack Tags */}
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {squad.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-mono text-slate-400"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Leader & Actions Footer */}
+                      <div className="pt-4 border-t border-white/5 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={squad.leader.avatar_url}
+                              alt={squad.leader.name}
+                              className="w-7 h-7 rounded-full bg-space-950 border border-white/15"
+                            />
+                            <div className="text-left">
+                              <div className="text-xs font-sans font-semibold text-slate-200">
+                                {squad.leader.name}
+                              </div>
+                              <div className="text-[10px] font-mono text-slate-400">
+                                @{squad.leader.handle}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <div className="text-[10px] font-mono text-slate-400">Synergy</div>
+                            <div className="text-xs font-mono font-bold text-emerald-400">
+                              {squad.defaultSynergy}%
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <button
+                            onClick={() => setSelectedSquadId(squad.id)}
+                            className="col-span-2 py-2 px-3 rounded-xl bg-space-950 hover:bg-white/10 border border-white/10 text-xs font-mono font-semibold text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <span>Open Squad Deck</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setApplySquadTarget(squad);
+                              setIsApplyModalOpen(true);
+                            }}
+                            disabled={isFullSquad}
+                            className="py-2 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/30 text-xs font-mono text-cyan-300 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                          >
+                            {isFullSquad ? 'Full' : 'Join'}
+                          </button>
+                        </div>
+
+                        {/* Direct 1-Click Open Squad Workspace */}
+                        <button
+                          onClick={() => handleLaunchSprintWithSquad(squad)}
+                          className="w-full py-2 px-3 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-sans text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                          title={`Open ${squad.name} Workspace`}
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-zinc-950" />
+                          <span className="truncate">Open {squad.name} Workspace &rarr;</span>
+                        </button>
+                      </div>
+                    </GlassCard>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
 
         {/* Create Squad Modal */}

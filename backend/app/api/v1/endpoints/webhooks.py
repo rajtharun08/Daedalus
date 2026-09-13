@@ -18,8 +18,10 @@ router = APIRouter()
 class WebhookSimulationRequest(BaseModel):
     event_type: str = Field(..., description="push, pull_request, check_run")
     task_code: str = Field(..., description="Target task code (e.g., CORE-01)")
-    commit_message: Optional[str] = "feat: closes #CORE-01 setup database and models"
-    branch_name: Optional[str] = "task/CORE-01"
+    commit_message: Optional[str] = None
+    branch_name: Optional[str] = None
+    author_name: Optional[str] = None
+    author_username: Optional[str] = None
     ci_conclusion: Optional[str] = "success"  # "success" or "failure"
 
 
@@ -86,14 +88,18 @@ async def simulate_webhook_event(
     payload = {}
     event_type = req.event_type.lower()
 
+    branch = req.branch_name or f"task/{req.task_code}"
+    author_name = req.author_name or "Developer"
+    author_user = req.author_username or "developer"
+
     if event_type == "push":
         payload = {
-            "ref": f"refs/heads/{req.branch_name}",
+            "ref": f"refs/heads/{branch}",
             "commits": [
                 {
                     "id": "a1b2c3d4e5f67890",
                     "message": req.commit_message or f"feat: updates on {req.task_code}",
-                    "author": {"name": "Alex Chen", "username": "alexc"}
+                    "author": {"name": author_name, "username": author_user}
                 }
             ]
         }
@@ -104,7 +110,7 @@ async def simulate_webhook_event(
                 "number": 42,
                 "title": f"feat({req.task_code}): complete implementation",
                 "body": f"Resolves #{req.task_code}. Tests passing locally.",
-                "head": {"ref": req.branch_name}
+                "head": {"ref": branch}
             }
         }
     elif event_type in ["check_run", "ci"]:
@@ -114,7 +120,7 @@ async def simulate_webhook_event(
                 "status": "completed",
                 "conclusion": req.ci_conclusion or "success",
                 "name": "CI / CD Verification Pipeline",
-                "head_branch": req.branch_name
+                "head_branch": branch
             }
         }
 

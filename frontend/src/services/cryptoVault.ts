@@ -36,7 +36,6 @@ interface EncryptedPayload {
 
 const VAULT_STORAGE_KEY = 'daedalus_byok_encrypted_vault';
 const VAULT_SALT_KEY = 'daedalus_vault_device_salt';
-export const DEMO_MASTER_PIN = '123456';
 const VAULT_CANARY_KEY = 'daedalus_vault_canary';
 const CANARY_PLAINTEXT = 'DAEDALUS_VAULT_OK';
 
@@ -278,31 +277,6 @@ async function resolveEncryptionKey(salt: Uint8Array): Promise<CryptoKey> {
   }
   if (activePin) {
     return deriveKeyFromPin(activePin, salt);
-  }
-
-  // Check if demo PIN auto-unlock applies (for frictionless hackathon presentations)
-  const canaryRaw = localStorage.getItem(VAULT_CANARY_KEY);
-  if (canaryRaw) {
-    try {
-      const canary: VaultCanary = JSON.parse(canaryRaw);
-      const canarySalt = new Uint8Array(base64ToBuffer(canary.salt));
-      const demoKey = await deriveKeyFromPin(DEMO_MASTER_PIN, canarySalt);
-      const iv = new Uint8Array(base64ToBuffer(canary.iv));
-      const ciphertext = base64ToBuffer(canary.ciphertext);
-
-      const decrypted = await window.crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        demoKey,
-        ciphertext
-      );
-      if (new TextDecoder().decode(decrypted) === CANARY_PLAINTEXT) {
-        activeCryptoKey = demoKey;
-        activePin = DEMO_MASTER_PIN;
-        return demoKey;
-      }
-    } catch {
-      // Demo PIN does not match canary
-    }
   }
 
   // Fallback to legacy key for existing unmigrated keys

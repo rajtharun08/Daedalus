@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { User as UserType, Project, Task, ActiveSquad } from './types';
 import { fetchUsers, decomposeProject, splitTask, createTask, deleteTask, fetchProject } from './services/api';
-import { listVaultKeys, isVaultUnlocked, unlockVault, lockVault, DEMO_MASTER_PIN } from './services/cryptoVault';
+import { listVaultKeys, isVaultUnlocked, unlockVault, lockVault } from './services/cryptoVault';
 import { LandingPage } from './components/landing/LandingPage';
 import { DirectOnboarding } from './components/onboarding/DirectOnboarding';
 import { TeamRoster } from './components/team/TeamRoster';
@@ -76,13 +76,7 @@ export function App() {
         console.error('Failed to parse active squad:', e);
       }
     }
-    return {
-      id: 'squad-crdt',
-      name: 'Autonomous CRDT Whiteboard Squad',
-      track: 'Full-Stack & Realtime Systems',
-      mission: 'Building a sub-10ms conflict-free collaborative whiteboard with CRDT sync, WebSockets, and Redis pub/sub.',
-      memberIds: ['user_1', 'user_2'],
-    };
+    return null;
   });
 
   const handleSelectActiveSquad = (squad: ActiveSquad | null) => {
@@ -120,20 +114,9 @@ export function App() {
             console.error('Failed to parse saved user:', e);
           }
         }
-        if (data.length > 0) {
-          setCurrentUser(data[0]);
-          localStorage.setItem('daedalus_user', JSON.stringify(data[0]));
-        }
       })
       .catch((err) => console.error('Failed to load users:', err));
   }, []);
-
-  // Auto-unlock demo vault for seamless hackathon evaluation
-  useEffect(() => {
-    if (currentUser?.github_username === 'alexc-dev' && !isVaultUnlocked()) {
-      unlockVault(DEMO_MASTER_PIN).catch(() => {});
-    }
-  }, [currentUser]);
 
   const handleLogout = () => {
     localStorage.removeItem('daedalus_user');

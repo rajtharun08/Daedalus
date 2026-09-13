@@ -244,27 +244,29 @@ export const UserProfile: React.FC<Props> = ({ user, onEditProfile, onUserUpdate
             </span>
           </div>
 
-          <div className="space-y-2.5 font-mono text-xs">
-            {[
-              { code: 'CORE-01', title: 'Scaffold FastAPI factory & CORS middleware', status: 'CI PASSED', hash: 'c8f41e9', time: '14m ago' },
-              { code: 'AUTH-02', title: 'HMAC-SHA256 GitHub Webhook verifier', status: 'IN REVIEW', hash: 'a12b07f', time: '1h ago' },
-              { code: 'API-04', title: 'Contract-first mock endpoint generation', status: 'QUEUED', hash: '—', time: '2h ago' },
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/60 border border-white/5">
-                <div className="flex items-center gap-3">
-                  <span className="text-zinc-400 font-bold">{item.code}</span>
-                  <span className="text-zinc-200">{item.title}</span>
+          {Array.isArray(user.tasks) && user.tasks.length > 0 ? (
+            <div className="space-y-2.5 font-mono text-xs">
+              {user.tasks.map((item: any, idx: number) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/60 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-zinc-400 font-bold">{item.task_code || item.code}</span>
+                    <span className="text-zinc-200">{item.title}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-zinc-400">
+                    <span className="text-cyan-400">{item.hash || '—'}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/10">
+                      {item.status}
+                    </span>
+                    {item.time && <span className="text-zinc-500 text-[11px] hidden sm:inline">{item.time}</span>}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 text-zinc-400">
-                  <span className="text-cyan-400">{item.hash}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/10">
-                    {item.status}
-                  </span>
-                  <span className="text-zinc-500 text-[11px] hidden sm:inline">{item.time}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-zinc-500 font-mono text-xs border border-white/5 rounded-xl bg-zinc-900/40">
+              No tasks assigned yet. Select tasks in your Project Roadmap or Squad Deck to link CI runs.
+            </div>
+          )}
         </div>
       )}
 
