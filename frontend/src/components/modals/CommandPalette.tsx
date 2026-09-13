@@ -17,6 +17,7 @@ import {
   Command,
   X,
   Key,
+  LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,6 +29,7 @@ interface Props {
   onOpenStatus: () => void;
   onLaunchTemplate: (title: string, prompt: string) => void;
   onOpenKeyVault?: () => void;
+  onLogout?: () => void;
 }
 
 interface CommandItem {
@@ -48,6 +50,7 @@ export const CommandPalette: React.FC<Props> = ({
   onOpenStatus,
   onLaunchTemplate,
   onOpenKeyVault,
+  onLogout,
 }) => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -184,6 +187,18 @@ export const CommandPalette: React.FC<Props> = ({
       },
       shortcut: 'K V',
     },
+    ...(onLogout ? [{
+      id: 'act-logout',
+      category: 'ACTIONS' as const,
+      title: 'Log Out Session',
+      subtitle: 'Clear session tokens & lock zero-knowledge key vault',
+      icon: LogOut,
+      action: () => {
+        onClose();
+        onLogout();
+      },
+      shortcut: '⇧ L',
+    }] : []),
   ];
 
   const filteredCommands = commands.filter(

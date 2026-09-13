@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Shield, Terminal, GitBranch, Clock, Cpu, CheckCircle2, Award, Zap, Code2, RefreshCw, Sparkles, Camera, X } from 'lucide-react';
+import { User, Shield, Terminal, GitBranch, Clock, Cpu, CheckCircle2, Award, Zap, Code2, RefreshCw, Sparkles, Camera, LogOut, X } from 'lucide-react';
 import { GlassCard } from '../common/GlassCard';
 import { MagneticButton } from '../common/MagneticButton';
 import { AvatarPicker } from '../common/AvatarPicker';
@@ -11,9 +11,10 @@ interface Props {
   user: any;
   onEditProfile?: () => void;
   onUserUpdated?: (user: any) => void;
+  onLogout?: () => void;
 }
 
-export const UserProfile: React.FC<Props> = ({ user, onEditProfile, onUserUpdated }) => {
+export const UserProfile: React.FC<Props> = ({ user, onEditProfile, onUserUpdated, onLogout }) => {
   const [activeTab, setActiveTab] = useState<'skills' | 'tasks' | 'vector'>('skills');
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
 
@@ -100,13 +101,15 @@ export const UserProfile: React.FC<Props> = ({ user, onEditProfile, onUserUpdate
               <Camera className="w-3.5 h-3.5 text-cyan-400" />
               <span>Change PFP</span>
             </button>
-            <button
-              onClick={onEditProfile}
-              className="px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs font-mono transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
-            >
-              <RefreshCw className="w-3.5 h-3.5 text-zinc-950" />
-              <span>Re-Scan Skills</span>
-            </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-rose-500/10 border border-white/10 hover:border-rose-500/30 text-zinc-300 hover:text-rose-300 font-mono text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                <span>Log Out</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

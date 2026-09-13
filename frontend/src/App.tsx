@@ -12,6 +12,7 @@ import {
   Layers,
   ChevronRight,
   LogIn,
+  LogOut,
   Search,
   BookOpen,
   Key,
@@ -359,13 +360,14 @@ export function App() {
                   </div>
                 </NavLink>
 
-                {/* Quick Teammate Switch button */}
+                {/* Log Out Button */}
                 <button
-                  onClick={() => openAuth('signin')}
-                  title="Switch Developer Profile"
-                  className="p-2 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  onClick={handleLogout}
+                  title="Log Out"
+                  className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-white/10 hover:border-rose-500/40 hover:bg-rose-500/10 text-xs font-mono text-zinc-400 hover:text-rose-300 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
                 >
-                  <Users className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Log Out</span>
                 </button>
               </div>
             ) : (
@@ -482,6 +484,7 @@ export function App() {
               <UserProfile
                 user={currentUser || users[0]}
                 onEditProfile={() => openAuth('signup')}
+                onLogout={handleLogout}
                 onUserUpdated={(updated) => {
                   setCurrentUser(updated);
                   setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
@@ -543,6 +546,7 @@ export function App() {
         onOpenStatus={() => setIsStatusOpen(true)}
         onLaunchTemplate={handleLaunchTemplate}
         onOpenKeyVault={() => setIsKeyVaultOpen(true)}
+        onLogout={currentUser ? handleLogout : undefined}
       />
 
       {/* Task Detail Sliding Side-Panel */}
