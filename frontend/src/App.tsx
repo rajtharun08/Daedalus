@@ -400,11 +400,7 @@ export function App() {
             element={
               <LandingPage
                 onStartOnboarding={() => {
-                  if (currentUser) {
-                    navigate('/workspace');
-                  } else {
-                    openAuth('signup');
-                  }
+                  navigate('/team');
                 }}
                 onLaunchTemplate={handleLaunchTemplate}
                 onOpenDocs={() => setIsDocsOpen(true)}
